@@ -25,6 +25,7 @@ trait IntegrationSuiteMixin extends BeforeAndAfterAll {
     WireMock.configureFor(host, wireMockPort)
     bearerTokenStub()
     locationsStub()
+    trendsStub()
     super.beforeAll()
   }
 
@@ -54,6 +55,16 @@ trait IntegrationSuiteMixin extends BeforeAndAfterAll {
         .withBody(closetLocationsResponse)))
   }
 
+  def trendsStub(): Unit = {
+    stubFor(get(urlPathMatching(twitterTrendsUrl))
+        .withHeader("Authorization", containing(bearerToken))
+        .withQueryParam("id", containing(woeid))
+        .willReturn(aResponse()
+            .withStatus(200)
+            .withHeader("Content-Type", "application/json")
+            .withBody(trendsResponse)))
+  }
+  
   def verifyBearerTokenCall(): Unit = {
     verify(postRequestedFor(urlEqualTo(bearerTokenUrl))
         .withHeader("Authorization", containing(basicAuthorizationHeader))

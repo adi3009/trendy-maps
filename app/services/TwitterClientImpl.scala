@@ -2,16 +2,15 @@ package services
 
 import java.net.URLEncoder
 import java.util.Base64
-
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-
 import javax.inject.Inject
 import javax.inject.Singleton
 import models.Location
 import models.ReverseGeocode
 import play.api.libs.ws.WSClient
 import play.api.libs.ws.WSRequest
+import models.Trend
 
 /**
  * @author Aditya Godara
@@ -33,7 +32,7 @@ class TwitterClientImpl @Inject() (ws: WSClient, twitterAuth: TwitterAuth)(impli
       .withHeaders(
         "Authorization" -> s"Basic ${bearerTokenCredentials()}",
         "Content-Type" -> "application/x-www-form-urlencoded;charset=UTF-8")
-        
+
     request.post(Map("grant_type" -> Seq("client_credentials"))) map { response =>
       (response.json \ "access_token").validate[String].fold(invalid => "", valid => valid)
     }
@@ -57,5 +56,18 @@ class TwitterClientImpl @Inject() (ws: WSClient, twitterAuth: TwitterAuth)(impli
       request <- futureRequest
       response <- request.get()
     } yield (response.json.validate[List[Location]].fold(s => Nil, l => l))
+  }
+
+  def trendsFor(woeid: String): Future[List[Trend]] = {
+    val futureRequest = bearerToken().map { token =>
+      ws.url(s"$baseUrl/1.1/trends/place")
+        .withHeaders("Authorization" -> s"Bearer $token")
+        .withQueryString("id" -> woeid)
+    }
+
+    for {
+      request <- futureRequest      
+      response <- request.get()      
+    } yield ((response.json \\ "trends")(0).validate[List[Trend]].fold(s => Nil, l => l))
   }
 }

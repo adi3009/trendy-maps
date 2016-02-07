@@ -24,15 +24,29 @@ class ApplicationControllerSpec extends PlaySpec with Results with MockitoSugar 
   implicit val context = play.api.libs.concurrent.Execution.Implicits.defaultContext
 
   "ApplicationController" should {
-    "list closest trend locations" in {
-      val mockTwitterClient = mock[TwitterClient]
-      when(mockTwitterClient.closetLocations(reverseGeocode)) thenReturn Future(closetLocationsHavingTrends)
-      val controller = new ApplicationController(mockTwitterClient)
+    "list closest trend locations" in new ControllerHelper {      
+      when(mockTwitterClient.closetLocations(reverseGeocode)) thenReturn Future(closetLocationsHavingTrends)      
+      
       val result = controller.locations(latitude, longitude).apply(FakeRequest())
       val resultAsJson = contentAsJson(result)
 
       verify(mockTwitterClient, atLeastOnce()).closetLocations(reverseGeocode)
       resultAsJson must be(Json.toJson(closetLocationsHavingTrends))
     }
+    
+    "list trends for a place(woeid)" in new ControllerHelper {
+      when(mockTwitterClient.trendsFor(woeid)) thenReturn Future(trendsList)
+      
+      val result = controller.trends(woeid).apply(FakeRequest())
+      val resultAsJson = contentAsJson(result)
+      
+      verify(mockTwitterClient, atLeastOnce()).trendsFor(woeid) 
+      resultAsJson must be(Json.toJson(trendsList))
+    }
+  }
+  
+  abstract class ControllerHelper {
+    val mockTwitterClient = mock[TwitterClient]
+    val controller = new ApplicationController(mockTwitterClient)
   }
 }

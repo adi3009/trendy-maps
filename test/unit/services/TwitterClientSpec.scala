@@ -50,6 +50,13 @@ class TwitterClientSpec extends PlaySpec {
         result must be(closetLocationsHavingTrends)
       }
     }
+    
+    "request trends" in {
+      withTwitterClient { client =>
+        val result = Await.result(client.trendsFor(woeid), 5 seconds)
+        result must be(trendsList)
+      }
+    }
   }
 
   def withTwitterClient[T](block: TwitterClient => T): T = {
@@ -59,6 +66,9 @@ class TwitterClientSpec extends PlaySpec {
       }
       case GET(p"/1.1/trends/closest.json") => Action {
         Results.Ok(Json.parse(closetLocationsResponse))
+      }
+      case GET(p"/1.1/trends/place") => Action {
+        Results.Ok(Json.parse(trendsResponse))
       }
     } { implicit port =>
       WsTestClient.withClient { client =>

@@ -23,6 +23,16 @@ class IntegrationSpec extends PlaySpec with OneAppPerSuite with IntegrationSuite
       verifyBearerTokenCall()
     }
   }
+  
+  "get trends for a place" in {
+    val trendsUrl = s"/trends/$woeid"
+    val Some(result) = route(FakeRequest(GET, trendsUrl))
+    
+    status(result) must be(OK)
+    contentType(result) must be(Some("application/json"))
+    contentAsJson(result) must be(Json.toJson(trendsList))
+    verifyBearerTokenCall()
+  }
 
   override implicit lazy val app: FakeApplication = FakeApplication(
     additionalConfiguration = Map(

@@ -3,10 +3,13 @@
 # ~~~~
 
 # Home page
-GET        /                            controllers.ApplicationController.index
+GET   /                                 controllers.ApplicationController.index
 
-# Locations
-GET        /locations/:latitude/:longitude        controllers.ApplicationController.locations(latitude: String, longitude: String)
+# Closest Locations having twitter trends 
+GET   /locations/:latitude/:longitude   controllers.ApplicationController.locations(latitude: String, longitude: String)
+
+# Trends for a specific woeid
+GET   /trends/:woeid                    controllers.ApplicationController.trends(woeid: String)
 
 # Map static resources from the /public folder to the /assets URL path
-GET        /assets/*file                controllers.Assets.versioned(path="/public", file: Asset)
+GET   /assets/*file                     controllers.Assets.versioned(path="/public", file: Asset)

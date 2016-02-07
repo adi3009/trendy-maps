@@ -19,4 +19,10 @@ class ApplicationController @Inject()(val twitterClient: TwitterClient)(implicit
     val locationWithTrends = twitterClient.closetLocations(ReverseGeocode(lat, long))
     locationWithTrends.map(locations => Ok(Json.toJson(locations)))
   }
+  
+  def trends(woeid: String) = Action.async {
+    twitterClient.trendsFor(woeid) map { placeTrends => 
+      Ok(Json.toJson(placeTrends))    
+    }
+  }
 }
