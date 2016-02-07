@@ -48,9 +48,9 @@ class TwitterClientImpl @Inject() (ws: WSClient, twitterAuth: TwitterAuth)(impli
    * gets the locations that Twitter has trending topic information for,
    * closest to a specified latitude and longitude.
    */
-  def closetLocations(reverseGeocode: ReverseGeocode): Future[List[Location]] = requestWithBearerToken("trends/closest.json") { request =>    
+  def closetLocations(reverseGeocode: ReverseGeocode): Future[List[Location]] = requestWithBearerToken("trends/closest.json") { request =>
     request.withQueryString("lat" -> reverseGeocode.latitude, "long" -> reverseGeocode.longitude)
-      .get().map { response =>        
+      .get().map { response =>
         response.json.validate[List[Location]].fold(s => Nil, l => l)
       }
   }
@@ -58,7 +58,7 @@ class TwitterClientImpl @Inject() (ws: WSClient, twitterAuth: TwitterAuth)(impli
   /**
    * Returns the top 50 trending topics for a specific WOEID, if trending information is available for it.
    */
-  def trendsFor(woeid: String): Future[List[Trend]] = requestWithBearerToken("trends/place") { request =>
+  def trendsFor(woeid: String): Future[List[Trend]] = requestWithBearerToken("trends/place.json") { request =>
     request.withQueryString("id" -> woeid)
       .get().map { response =>
         (response.json \\ "trends")(0).validate[List[Trend]].fold(s => Nil, l => l)

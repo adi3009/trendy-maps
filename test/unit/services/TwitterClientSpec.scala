@@ -67,7 +67,7 @@ class TwitterClientSpec extends PlaySpec {
       case GET(p"/1.1/trends/closest.json") => Action {
         Results.Ok(Json.parse(closetLocationsResponse))
       }
-      case GET(p"/1.1/trends/place") => Action {
+      case GET(p"/1.1/trends/place.json") => Action {
         Results.Ok(Json.parse(trendsResponse))
       }
     } { implicit port =>

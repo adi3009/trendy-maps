@@ -20,7 +20,7 @@ package object testdata {
   val closetLocationsHavingTrendsJson = Json.parse(closetLocationsResponse)
   val closetLocationsHavingTrends: List[Location] = closetLocationsHavingTrendsJson.validate[List[Location]].get
   
-  val twitterTrendsUrl = "/1.1/trends/place"
+  val twitterTrendsUrl = "/1.1/trends/place.json"
   val aTrend = readJson("/twitter/a-trend.json")
   val aTrendModel = Trend("#GanaPuntosSi", "http://twitter.com/search/?q=%23GanaPuntosSi")
   val trendsResponse = readJson("/twitter/trends.json")
