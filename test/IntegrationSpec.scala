@@ -1,24 +1,32 @@
-import org.specs2.mutable._
-import org.specs2.runner._
-import org.junit.runner._
+import org.scalatestplus.play.OneAppPerSuite
+import org.scalatestplus.play.PlaySpec
 
+import play.api.libs.json.Json
 import play.api.test._
 import play.api.test.Helpers._
+import testdata._
 
 /**
- * add your integration spec here.
  * An integration test will fire up a whole play application in a real (or headless) browser
  */
-@RunWith(classOf[JUnitRunner])
-class IntegrationSpec extends Specification {
+class IntegrationSpec extends PlaySpec with OneAppPerSuite with IntegrationSuiteMixin {
 
   "Application" should {
 
-    "work from within a browser" in new WithBrowser {
+    "get closest locations from twitter" in {
+      val locationsUrl = s"/locations/$latitude/$longitude"
+      val Some(result) = route(FakeRequest(GET, locationsUrl))
 
-      browser.goTo("http://localhost:" + port)
-
-      browser.pageSource must contain("Your new application is ready.")
+      status(result) must be(OK)
+      contentType(result) must be(Some("application/json"))
+      contentAsJson(result) must be(Json.toJson(closetLocationsHavingTrends))
+      verifyBearerTokenCall()
     }
   }
+
+  override implicit lazy val app: FakeApplication = FakeApplication(
+    additionalConfiguration = Map(
+      "twitter.api.url" -> s"http://$host:$wireMockPort",
+      "twitter.consumer.key" -> twitterConsumerKey,
+      "twitter.consumer.secret" -> twitterConsumerSecret))
 }

@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Jaipur",
+    "placeType": {
+      "code": 7,
+      "name": "Town"
+    },
+    "url": "http://where.yahooapis.com/v1/place/2295401",
+    "parentid": 23424848,
+    "country": "India",
+    "woeid": 2295401,
+    "countryCode": "IN"
+  }
+]
