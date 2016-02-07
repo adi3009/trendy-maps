@@ -38,36 +38,30 @@ class TwitterClientImpl @Inject() (ws: WSClient, twitterAuth: TwitterAuth)(impli
     }
   }
 
+  private def requestWithBearerToken[T](url: String)(block: WSRequest => Future[T]): Future[T] = {
+    bearerToken().flatMap { token =>
+      block(ws.url(s"$baseUrl/1.1/$url").withHeaders("Authorization" -> s"Bearer $token"))
+    }
+  }
+
   /**
    * gets the locations that Twitter has trending topic information for,
    * closest to a specified latitude and longitude.
-   *
-   * @param reverseGeocode
-   * @return
    */
-  def closetLocations(reverseGeocode: ReverseGeocode): Future[List[Location]] = {
-    val futureRequest = bearerToken().map { token =>
-      ws.url(s"$baseUrl/1.1/trends/closest.json")
-        .withHeaders("Authorization" -> s"Bearer $token")
-        .withQueryString("lat" -> reverseGeocode.latitude, "long" -> reverseGeocode.longitude)
-    }
-
-    for {
-      request <- futureRequest
-      response <- request.get()
-    } yield (response.json.validate[List[Location]].fold(s => Nil, l => l))
+  def closetLocations(reverseGeocode: ReverseGeocode): Future[List[Location]] = requestWithBearerToken("trends/closest.json") { request =>    
+    request.withQueryString("lat" -> reverseGeocode.latitude, "long" -> reverseGeocode.longitude)
+      .get().map { response =>        
+        response.json.validate[List[Location]].fold(s => Nil, l => l)
+      }
   }
 
-  def trendsFor(woeid: String): Future[List[Trend]] = {
-    val futureRequest = bearerToken().map { token =>
-      ws.url(s"$baseUrl/1.1/trends/place")
-        .withHeaders("Authorization" -> s"Bearer $token")
-        .withQueryString("id" -> woeid)
-    }
-
-    for {
-      request <- futureRequest      
-      response <- request.get()      
-    } yield ((response.json \\ "trends")(0).validate[List[Trend]].fold(s => Nil, l => l))
+  /**
+   * Returns the top 50 trending topics for a specific WOEID, if trending information is available for it.
+   */
+  def trendsFor(woeid: String): Future[List[Trend]] = requestWithBearerToken("trends/place") { request =>
+    request.withQueryString("id" -> woeid)
+      .get().map { response =>
+        (response.json \\ "trends")(0).validate[List[Trend]].fold(s => Nil, l => l)
+      }
   }
 }
