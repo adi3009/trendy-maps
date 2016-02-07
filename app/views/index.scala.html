@@ -1,7 +1,10 @@
-@(message: String)
-
-@main("Welcome to Play") {
-
-    @play20.welcome(message)
-
+@(mapBox: services.MapBox)
+@main("Welcome to Trendy Maps") {
+	<div id="map"></div>
+	<script type="text/javascript">
+		MapBox  = {
+			id: "@mapBox.id",
+			accessToken: "@mapBox.accessToken"
+		}
+	</script>
 }

@@ -1,13 +1,10 @@
 package unit.controllers
 
 import scala.concurrent.Future
-
 import org.mockito.Mockito.{ atLeastOnce, verify, when }
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.PlaySpec
-
 import com.google.inject.ImplementedBy
-
 import controllers.ApplicationController
 import play.api.libs.json.Json
 import play.api.mvc.Results
@@ -15,6 +12,8 @@ import play.api.test._
 import play.api.test.Helpers._
 import services.{ TwitterClient, TwitterClientImpl }
 import testdata._
+import play.api.Configuration
+import services.MapBox
 
 /**
  * @author Aditya Godara
@@ -47,6 +46,8 @@ class ApplicationControllerSpec extends PlaySpec with Results with MockitoSugar 
   
   abstract class ControllerHelper {
     val mockTwitterClient = mock[TwitterClient]
-    val controller = new ApplicationController(mockTwitterClient)
+    val controller = new ApplicationController(mockTwitterClient, MapBox(Configuration(
+    "mapbox.id" -> "",
+    "mapbox.access_token" -> "")))
   }
 }

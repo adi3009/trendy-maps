@@ -1,18 +1,17 @@
 package controllers
 
 import javax.inject.Inject
-
 import models.ReverseGeocode
 import play.api.libs.json._
 import play.api.mvc._
 import services.TwitterClient
-
 import scala.concurrent.ExecutionContext
+import services.MapBox
 
-class ApplicationController @Inject()(val twitterClient: TwitterClient)(implicit val executionContext: ExecutionContext) extends Controller {
+class ApplicationController @Inject()(val twitterClient: TwitterClient, mapBox: MapBox)(implicit val executionContext: ExecutionContext) extends Controller {
   
   def index = Action {
-    Ok(views.html.index("Your new application is ready."))
+    Ok(views.html.index(mapBox))
   }
 
   def locations(lat: String, long: String) = Action.async {
