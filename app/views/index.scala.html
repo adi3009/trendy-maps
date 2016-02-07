@@ -1,10 +1,15 @@
-@(mapBox: services.MapBox)
-@main("Welcome to Trendy Maps") {
-	<div id="map"></div>
+@(mapBox: services.MapBox)(implicit req: play.api.mvc.RequestHeader)
+@main("Welcome to Trendy Maps") {	
+	@helper.javascriptRouter("jsRoutes")(
+    		routes.javascript.ApplicationController.locations,
+    		routes.javascript.ApplicationController.trends
+    	)
 	<script type="text/javascript">
 		MapBox  = {
 			id: "@mapBox.id",
 			accessToken: "@mapBox.accessToken"
 		}
 	</script>
+	
+	<div id="map"></div>	
 }

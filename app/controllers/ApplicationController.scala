@@ -10,7 +10,7 @@ import services.MapBox
 
 class ApplicationController @Inject()(val twitterClient: TwitterClient, mapBox: MapBox)(implicit val executionContext: ExecutionContext) extends Controller {
   
-  def index = Action {
+  def index = Action { implicit request =>    
     Ok(views.html.index(mapBox))
   }
 
