@@ -2,3 +2,7 @@
 	min-height: 800px;
 	height: 80%;
 }
+
+.error {
+	color: red;
+}

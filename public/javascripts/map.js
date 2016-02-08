@@ -37,7 +37,9 @@ function LocationMap(client) {
 	}
 	
 	function showError(xhr, message, error) {
-		popup(message);
+		console.error(message);
+		console.error(error);
+		popup('<span class="error">Sorry! Something went wrong.</span>');
 	}
 	
 	function formatTrends(trends) {
@@ -79,26 +81,25 @@ function LocationMap(client) {
 	}
 };
 
-function TwitterClient(onSuccess, onFailure) {	
+function TwitterClient() {
+	var successCallback;
+	var errorCallback;
+
 	function getClosestLocation(location, onSuccess, onError) {
 		var closestLocationRoute = jsRoutes.controllers.ApplicationController.locations(location.lat, location.lng)
-		$.ajax(closestLocationRoute.url).success(function(data) {
-			onSuccess(data[0].woeid);
-		}).error(function(jqXHR, textStatus, errorThrown) {
-			onError(jqXHR, textStatus, errorThrown);
-		});
+		$.ajax(closestLocationRoute.url).success(onSuccess).error(onError);
+	}
+
+	function trendsAjaxCall(data) {
+		var trendsRoute = jsRoutes.controllers.ApplicationController.trends(data[0].woeid);
+		$.ajax(trendsRoute.url).success(successCallback).error(errorCallback);
 	}
 	
 	return {
 		getTrends: function (location, onSuccess, onError) {
-			getClosestLocation(location, function(woeid) {
-				var trendsRoute = jsRoutes.controllers.ApplicationController.trends(woeid);
-				$.ajax(trendsRoute.url).success(function(data){
-					onSuccess(data);
-				}).error(function(jqXHR, textStatus, errorThrown) {
-					onError(jqXHR, textStatus, errorThrown);
-				});
-			});	
+			successCallback = onSuccess;
+			errorCallback = onError;
+			getClosestLocation(location, trendsAjaxCall, errorCallback);
 		}
 	}
 };
