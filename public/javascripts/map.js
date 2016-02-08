@@ -6,12 +6,12 @@ function LocationMap(client) {
 	
 	var maxZoom = 7;
 	var map = L.map('map').locate({
-		setView : true
+		setView: true
 	});
 
 	map.on('dblclick', function(e) {
 		location = e.latlng;
-		map.setView(location, maxZoom);
+		setView();
 		client.getTrends(location, showTrends, showError);
 	});
 
@@ -21,21 +21,47 @@ function LocationMap(client) {
 	function geoSuccess(position) {
 		location = position.latlng;
 		client.getTrends(location, showTrends, showError);
-		renderMap();		
 	}
 
 	function geoError() {
 		//askWhereAreYou();
 		client.getTrends(location, showTrends, showError);
-		renderMap();		
 	}
 
 	function askWhereAreYou() {
-		var result = prompt("Where are you?")
+		var result = prompt("Where are you?");
 	}
 
-	function setLocated() {
-		located = true;
+	function showTrends(trends) {
+		popup(formatTrends(trends));
+	}
+	
+	function showError(xhr, message, error) {
+		popup(message);
+	}
+	
+	function formatTrends(trends) {
+		function formatTrend(trend) {
+			return "<a href=" + trend.url + ">" + trend.name + "</a>";
+		}
+
+		trends = trends.length > 5 && trends.slice(0, 5);
+		
+		var htmlContent = "";
+		for (var i = 0; i < trends.length; i++) {
+			htmlContent += formatTrend(trends[i]) + "<br />";
+		}
+
+		return htmlContent;
+	}
+
+	function popup(content) {
+		var marker = L.marker(location).addTo(map);
+		marker.bindPopup(content).openPopup();
+	}
+
+	function setView() {
+		map.setView(location, maxZoom);
 	}
 
 	function renderMap() {
@@ -45,42 +71,11 @@ function LocationMap(client) {
 			id : MapBox.id,
 			accessToken : MapBox.accessToken
 		}).addTo(map);
-		map.setView(location, maxZoom);
-	}
-
-	function showTrends(trends) {
-		setPopup(trends);
-	}
-	
-	function showError() {
-		
-	}
-	
-	function setPopup(content) {
-		function formatTrend(trend) {
-			return "<a href=" + trend.url + ">" + trend.name + "</a>";
-		}
-		
-		var marker = L.marker(location).addTo(map);
-		if (content.length > 5) {
-			content = content.slice(0, 4);
-		}
-		/*
-		var htmlContent = content.reduce((t1, t2) =>
-			formatTrend(t1) + "<br />" + formatTrend(t2) 
-		);
-		*/
-		var htmlContent = "";
-		for (var i = 0; i < content.length; i++) {
-			htmlContent += formatTrend(content[i]) + "<br />";
-		}
-		marker.bindPopup(htmlContent).openPopup();
+		setView();
 	}
 
 	return {
-		render : function() {
-			renderMap();			
-		}
+		render: renderMap
 	}
 };
 
