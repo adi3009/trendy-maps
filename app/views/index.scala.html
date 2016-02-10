@@ -1,15 +1,17 @@
 @(mapBox: services.MapBox)(implicit req: play.api.mvc.RequestHeader)
-@main("Welcome to Trendy Maps") {	
+@main("Welcome to Trendy Maps") {
 	@helper.javascriptRouter("jsRoutes")(
     		routes.javascript.ApplicationController.locations,
     		routes.javascript.ApplicationController.trends
     	)
 	<script type="text/javascript">
 		MapBox  = {
+            url: "https://api.tiles.mapbox.com/v4",
+            attribution: "Map data &copy; <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors, <a href='http://creativecommons.org/licenses/by-sa/2.0/'>CC-BY-SA</a>, Imagery © <a href='http://mapbox.com'>Mapbox</a>",
 			id: "@mapBox.id",
 			accessToken: "@mapBox.accessToken"
 		}
 	</script>
-	
-	<div id="map"></div>	
+
+	<div id="map"></div>
 }

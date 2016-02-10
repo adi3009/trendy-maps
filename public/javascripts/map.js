@@ -1,4 +1,4 @@
-function LocationMap(client) {
+function LocationMap(mapProvider, client) {
     var location = {
         lat: 51.505,
         lng: -0.09
@@ -67,12 +67,13 @@ function LocationMap(client) {
     }
 
     function renderMap() {
-        L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+        L.tileLayer(mapProvider.url + '/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+            attribution: mapProvider.attribution,
             maxZoom: maxZoom,
-            id: MapBox.id,
-            accessToken: MapBox.accessToken
+            id: mapProvider.id,
+            accessToken: mapProvider.accessToken
         }).addTo(map);
+
         setView();
     }
 
@@ -81,17 +82,17 @@ function LocationMap(client) {
     }
 }
 
-function TwitterClient() {
+function TwitterClient(controller) {
     var successCallback;
     var errorCallback;
 
     function getClosestLocation(location, onSuccess, onError) {
-        var closestLocationRoute = jsRoutes.controllers.ApplicationController.locations(location.lat, location.lng)
+        var closestLocationRoute = controller.locations(location.lat, location.lng);
         $.ajax(closestLocationRoute.url).success(onSuccess).error(onError);
     }
 
     function trendsAjaxCall(data) {
-        var trendsRoute = jsRoutes.controllers.ApplicationController.trends(data[0].woeid);
+        var trendsRoute = controller.trends(data[0].woeid);
         $.ajax(trendsRoute.url).success(successCallback).error(errorCallback);
     }
 
@@ -104,6 +105,6 @@ function TwitterClient() {
     }
 }
 
-var locationMap = new LocationMap(new TwitterClient());
+var locationMap = new LocationMap(MapBox, new TwitterClient(jsRoutes.controllers.ApplicationController));
 
 locationMap.render();
